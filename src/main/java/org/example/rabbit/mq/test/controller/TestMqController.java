@@ -1,29 +1,42 @@
 package org.example.rabbit.mq.test.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-
+import java.time.LocalDateTime;
 
 @Component
 public class TestMqController {
 
-    private ObjectMapper objectMapper;
+    private RabbitTemplate rabbitTemplate;
 
-    public TestMqController(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public TestMqController(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
     }
 
-    @RabbitListener(queues = "simple-test-queue")
-    public void receiveMessage(final Message message) throws JsonProcessingException{
+    @RabbitListener(queues = "simple-test-queue",concurrency = "4")
+    public void consumeMessageAndForget(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
         System.out.println("TestMqController " + activityId);
-        String mqMessageBodyAsString = new String(message.getBody(), StandardCharsets.UTF_8);
-        Person person =  objectMapper.readValue(mqMessageBodyAsString,Person.class);
         System.out.println("TestMqController " + person);
+    }
+
+    @RabbitListener(queues = "request-response-queue")
+    public PersonResponseDto consumeMessageAndProduceIntoAnotherQueue(final Person person, final Message message){
+        String activityId = message.getMessageProperties().getMessageId();
+        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId);
+        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + person);
+
+        PersonResponseDto personResponseDto = PersonResponseDto.builder()
+                .activityId(activityId)
+                .name(person.getName())
+                .age(person.getAge()*2)
+                .localDateTime(LocalDateTime.now())
+                .build();
+
+        return personResponseDto;
     }
 }

@@ -1,51 +1,71 @@
 package org.example.rabbit.mq.test.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.UUID;
 
 @RestController
 public class TestRestController {
+
     private RabbitTemplate rabbitTemplate;
-    private ObjectMapper objectMapper;
 
     public TestRestController(RabbitTemplate rabbitTemplate,
                               ObjectMapper objectMapper) {
         this.rabbitTemplate = rabbitTemplate;
-        this.objectMapper = objectMapper;
     }
 
     @GetMapping(
-            path = "/simple-test-queue"
+            path = "/produce-and-forget"
     )
     @ResponseStatus(value = HttpStatus.OK)
-    public void send(final Person person) throws JsonProcessingException {
-        String activityId = UUID.randomUUID().toString();
-        System.out.println("TestRestController " + activityId);
-
-        Message message = MessageBuilder
-                .withBody(objectMapper.writeValueAsString(person).getBytes())
-                .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                .setContentEncoding("utf-8")
-                .setMessageId(activityId)
-                .build();
+    public void produceAndForget(final Person person){
+        final String activityId = UUID.randomUUID().toString();
+        System.out.println("TestRestController produceAndForget() " + activityId);
 
         rabbitTemplate.convertAndSend(
                 "simple-test-queue",
-                message
+                person,
+                message -> {
+                    MessageProperties messageProperties = message.getMessageProperties();
+                    messageProperties.setMessageId(activityId);
+                    return message;
+                }
         );
-
     }
 
+    @GetMapping(
+            path = "/request-response-queue",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(value = HttpStatus.OK)
+    public JsonNode requestResponseTestQueue(final Person person){
+        String activityId = UUID.randomUUID().toString();
+        System.out.println("TestRestController requestResponseTestQueue() activityId " + activityId);
+
+        JsonNode jsonNode = rabbitTemplate.convertSendAndReceiveAsType(
+                "request-response-queue",
+                person,
+                message -> {
+                    MessageProperties messageProperties = message.getMessageProperties();
+                    messageProperties.setMessageId(activityId);
+                    return message;
+                },
+                new ParameterizedTypeReference<>() {}
+        );
+        System.out.println("TestRestController requestResponseTestQueue() personResponseDto "+jsonNode);
+        return jsonNode;
+    }
 }
