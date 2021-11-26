@@ -1,19 +1,14 @@
 package org.example.rabbit.mq.test.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.MessageProperties;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 
 import java.util.UUID;
 
@@ -22,8 +17,7 @@ public class TestRestController {
 
     private RabbitTemplate rabbitTemplate;
 
-    public TestRestController(RabbitTemplate rabbitTemplate,
-                              ObjectMapper objectMapper) {
+    public TestRestController(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
