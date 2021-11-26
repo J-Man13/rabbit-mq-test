@@ -1,0 +1,9 @@
+{
+  "REST_GENERAL_RUNTIME_EXCEPTION_HANDLING": {
+    "en": "If you are seeing this message we are asking you to contact support for logs, so the issue can be handled more thoroughly through stack traces and etc. During rest service execution, occurred runtime exception which was handled and logged by rest controller advise with message : '%s'"
+  },
+  "DATABASE_OPERATION_EXECUTION_FAILURE": {
+    "en" : "Could not execute database operation. Reason: %s"
+  }
+}
+

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error">
+    <Properties>
+        <Property name="name">@project.artifactId@-@project.version@</Property>
+        <Property name="application_log_path">log/${name}/application</Property>
+        <Property name="service_log_path">log/${name}/service</Property>
+<!--        <Property name="application_log_path">/opt/tomcat/log/${name}/application</Property>-->
+<!--        <Property name="service_log_path">/opt/tomcat/log/${name}/service</Property>-->
+    </Properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSSSSSZ}} ${name}  %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+        </Console>
+
+        <RollingFile name="application_log_appender"
+                     fileName="${application_log_path}/${name}-application.log"
+                     filePattern="${application_log_path}/${name}-application-log-%d{yyyy-MM-dd-HHZ}-%i.log.gz">
+            <PatternLayout>
+                <ScriptPatternSelector>
+                    <Script name="correlationIdCheckScript" language="javascript">
+                        <![CDATA[
+                                if (logEvent.getContextMap().containsKey("correlationId"))
+                                    substitutor.replace("withCorrelationIdPattern");
+                                else
+                                    substitutor.replace("standardPattern");
+                        ]]>
+                    </Script>
+                    <PatternMatch key="withCorrelationIdPattern"
+                                  pattern="date:%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSSSSSZ}}, level:%-5level, thread:%t, correlationId:$${ctx:correlationId}, logger:%logger{36}, app_name:${name}, message:%m%n"/>
+                    <PatternMatch key="standardPattern"
+                                  pattern="date:%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSSSSSZ}}, level:%-5level, thread:%t, logger:%logger{36}, app_name:${name}, message:%m%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="30 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${application_log_path}" maxDepth="1">
+                    <IfAll>
+                        <IfAccumulatedFileCount exceeds="10000"/>
+                    </IfAll>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+
+        <RollingFile name="service_log_appender"
+                     fileName="${service_log_path}/${name}-service.log"
+                     filePattern="${service_log_path}/${name}-service-log-%d{yyyy-MM-dd-HHZ}-%i.log.gz">
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="30 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${service_log_path}" maxDepth="1">
+                    <IfAll>
+                        <IfAccumulatedFileCount exceeds="10000"/>
+                    </IfAll>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info" includeLocation="true">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="application_log_appender"/>
+        </Root>
+
+        <AsyncLogger name="service_logger" level="info" additivity="false" includeLocation="false">
+            <AppenderRef ref="service_log_appender"/>
+        </AsyncLogger>
+    </Loggers>
+</Configuration>
