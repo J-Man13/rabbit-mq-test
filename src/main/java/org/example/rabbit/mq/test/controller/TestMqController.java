@@ -16,15 +16,15 @@ public class TestMqController {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @RabbitListener(queues = "simple-test-queue",concurrency = "4")
+    @RabbitListener(queues = "simple-test-queue",concurrency = "1")
     public void consumeMessageAndForget(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
         System.out.println("TestMqController " + activityId);
         System.out.println("TestMqController " + person);
     }
 
-    @RabbitListener(queues = "request-response-queue")
-    public PersonResponseDto consumeMessageAndProduceIntoAnotherQueue(final Person person, final Message message){
+    @RabbitListener(queues = "request-response-queue",concurrency = "1")
+    public PersonResponseDto consumeMessageAndProduceResponse(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId);
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + person);

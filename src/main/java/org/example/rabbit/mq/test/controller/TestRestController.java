@@ -45,7 +45,7 @@ public class TestRestController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(value = HttpStatus.OK)
-    public JsonNode requestResponseTestQueue(final Person person){
+    public JsonNode queueRequestResponseSemanticTest(final Person person){
         String activityId = UUID.randomUUID().toString();
         System.out.println("TestRestController requestResponseTestQueue() activityId " + activityId);
 
