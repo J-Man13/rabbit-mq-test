@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +36,7 @@ public class TestRestController {
                 message -> {
                     MessageProperties messageProperties = message.getMessageProperties();
                     messageProperties.setMessageId(activityId);
+                    messageProperties.setHeader("producerCallDateTime", LocalDateTime.now());
                     return message;
                 }
         );
@@ -54,6 +56,7 @@ public class TestRestController {
                 person,
                 message -> {
                     MessageProperties messageProperties = message.getMessageProperties();
+                    messageProperties.setHeader("producerCallDateTime", LocalDateTime.now());
                     messageProperties.setMessageId(activityId);
                     return message;
                 },

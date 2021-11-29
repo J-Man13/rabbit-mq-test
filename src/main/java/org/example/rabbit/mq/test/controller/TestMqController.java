@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class TestMqController {
@@ -19,6 +20,13 @@ public class TestMqController {
     @RabbitListener(queues = "simple-test-queue",concurrency = "1")
     public void consumeMessageAndForget(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
+        String producerCallDateTimeString = message.getMessageProperties().getHeader("producerCallDateTime");
+        LocalDateTime producerCallDateTime = LocalDateTime.parse(
+                producerCallDateTimeString,
+                DateTimeFormatter.ISO_DATE_TIME
+        );
+        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
+                "Producer call date time "+producerCallDateTime);
         System.out.println("TestMqController " + activityId);
         System.out.println("TestMqController " + person);
     }
@@ -26,7 +34,13 @@ public class TestMqController {
     @RabbitListener(queues = "request-response-queue",concurrency = "1")
     public PersonResponseDto consumeMessageAndProduceResponse(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
-        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId);
+        String producerCallDateTimeString = message.getMessageProperties().getHeader("producerCallDateTime");
+        LocalDateTime producerCallDateTime = LocalDateTime.parse(
+                producerCallDateTimeString,
+                DateTimeFormatter.ISO_DATE_TIME
+        );
+        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
+                "Producer call date time "+producerCallDateTime);
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + person);
 
         PersonResponseDto personResponseDto = PersonResponseDto.builder()
