@@ -52,11 +52,11 @@ public class TestRestController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(value = HttpStatus.OK)
-    public JsonNode queueRequestResponseSemanticTest(final Person person){
+    public PersonResponseDto queueRequestResponseSemanticTest(final Person person){
         String activityId = UUID.randomUUID().toString();
         System.out.println("TestRestController requestResponseTestQueue() activityId " + activityId);
 
-        JsonNode jsonNode = rabbitTemplate.convertSendAndReceiveAsType(
+        PersonResponseDto personResponseDto = rabbitTemplate.convertSendAndReceiveAsType(
                 "request-response-queue",
                 person,
                 message -> {
@@ -72,7 +72,7 @@ public class TestRestController {
                 },
                 new ParameterizedTypeReference<>() {}
         );
-        System.out.println("TestRestController requestResponseTestQueue() personResponseDto "+jsonNode);
-        return jsonNode;
+        System.out.println("TestRestController requestResponseTestQueue() personResponseDto "+personResponseDto);
+        return personResponseDto;
     }
 }
