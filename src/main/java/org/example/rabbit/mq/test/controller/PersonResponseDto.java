@@ -25,7 +25,7 @@ public class PersonResponseDto {
     @JsonProperty("age")
     private Integer age;
     @JsonProperty("localDateTime")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime localDateTime;

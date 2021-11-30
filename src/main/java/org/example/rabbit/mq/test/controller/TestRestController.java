@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @RestController
@@ -29,14 +30,18 @@ public class TestRestController {
     public void produceAndForget(final Person person){
         final String activityId = UUID.randomUUID().toString();
         System.out.println("TestRestController produceAndForget() " + activityId);
-
         rabbitTemplate.convertAndSend(
                 "simple-test-queue",
                 person,
                 message -> {
                     MessageProperties messageProperties = message.getMessageProperties();
                     messageProperties.setMessageId(activityId);
-                    messageProperties.setHeader("producerCallDateTime", LocalDateTime.now());
+                    messageProperties.setHeader(
+                            "pdrCallDt",
+                            LocalDateTime
+                                    .now()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"))
+                    );
                     return message;
                 }
         );
@@ -56,7 +61,12 @@ public class TestRestController {
                 person,
                 message -> {
                     MessageProperties messageProperties = message.getMessageProperties();
-                    messageProperties.setHeader("producerCallDateTime", LocalDateTime.now());
+                    messageProperties.setHeader(
+                            "pdrCallDt",
+                            LocalDateTime
+                                    .now()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"))
+                    );
                     messageProperties.setMessageId(activityId);
                     return message;
                 },

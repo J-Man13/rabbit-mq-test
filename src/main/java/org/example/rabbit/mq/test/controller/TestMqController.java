@@ -20,13 +20,13 @@ public class TestMqController {
     @RabbitListener(queues = "simple-test-queue",concurrency = "1")
     public void consumeMessageAndForget(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
-        String producerCallDateTimeString = message.getMessageProperties().getHeader("producerCallDateTime");
-        LocalDateTime producerCallDateTime = LocalDateTime.parse(
-                producerCallDateTimeString,
-                DateTimeFormatter.ISO_DATE_TIME
+        String pdrCallDtString = message.getMessageProperties().getHeader("pdrCallDt");
+        LocalDateTime pdrCallDt = LocalDateTime.parse(
+                pdrCallDtString,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
-                "Producer call date time "+producerCallDateTime);
+                "Producer call date time "+pdrCallDt);
         System.out.println("TestMqController " + activityId);
         System.out.println("TestMqController " + person);
     }
@@ -34,13 +34,13 @@ public class TestMqController {
     @RabbitListener(queues = "request-response-queue",concurrency = "1")
     public PersonResponseDto consumeMessageAndProduceResponse(final Person person, final Message message){
         String activityId = message.getMessageProperties().getMessageId();
-        String producerCallDateTimeString = message.getMessageProperties().getHeader("producerCallDateTime");
-        LocalDateTime producerCallDateTime = LocalDateTime.parse(
-                producerCallDateTimeString,
-                DateTimeFormatter.ISO_DATE_TIME
+        String pdrCallDtString = message.getMessageProperties().getHeader("pdrCallDt");
+        LocalDateTime pdrCallDt = LocalDateTime.parse(
+                pdrCallDtString,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
-                "Producer call date time "+producerCallDateTime);
+                "Producer call date time "+pdrCallDt);
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + person);
 
         PersonResponseDto personResponseDto = PersonResponseDto.builder()
