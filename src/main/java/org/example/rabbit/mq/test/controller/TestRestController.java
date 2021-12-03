@@ -1,6 +1,5 @@
 package org.example.rabbit.mq.test.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.ParameterizedTypeReference;

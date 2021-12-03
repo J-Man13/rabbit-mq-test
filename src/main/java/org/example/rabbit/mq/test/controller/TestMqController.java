@@ -1,47 +1,46 @@
 package org.example.rabbit.mq.test.controller;
 
-import org.springframework.amqp.core.Message;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+
 @Component
 public class TestMqController {
 
-    private RabbitTemplate rabbitTemplate;
-
-    public TestMqController(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
-    @RabbitListener(queues = "simple-test-queue",concurrency = "1")
-    public void consumeMessageAndForget(final Person person, final Message message){
-        String activityId = message.getMessageProperties().getMessageId();
-        String pdrCallDtString = message.getMessageProperties().getHeader("pdrCallDt");
+    @RabbitListener(queues = "simple-test-queue")
+    public void consumeMessageAndForget(final Person person,
+                                        @Header(AmqpHeaders.MESSAGE_ID) String activityId,
+                                        @Header("pdrCallDt") String pdrCallDtString,
+                                        @Header(AmqpHeaders.TIMESTAMP) String timestamp){
         LocalDateTime pdrCallDt = LocalDateTime.parse(
                 pdrCallDtString,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
                 "Producer call date time "+pdrCallDt);
-        System.out.println("TestMqController " + activityId);
-        System.out.println("TestMqController " + person);
+        System.out.println("Timestamp " + timestamp);
+        System.out.println("TestMqController consumeMessageAndForget()" + person);
     }
 
-    @RabbitListener(queues = "request-response-queue",concurrency = "1")
-    public PersonResponseDto consumeMessageAndProduceResponse(final Person person, final Message message){
-        String activityId = message.getMessageProperties().getMessageId();
-        String pdrCallDtString = message.getMessageProperties().getHeader("pdrCallDt");
+    @RabbitListener(queues = "request-response-queue")
+    public PersonResponseDto consumeMessageAndProduceResponse(final Person person,
+                                                              @Header(AmqpHeaders.MESSAGE_ID) String activityId,
+                                                              @Header("pdrCallDt") String pdrCallDtString,
+                                                              @Header(AmqpHeaders.TIMESTAMP) String timestamp){
         LocalDateTime pdrCallDt = LocalDateTime.parse(
                 pdrCallDtString,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
-        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
+        System.out.println("TestMqController consumeMessageAndProduceResponse() " + activityId+" "+
                 "Producer call date time "+pdrCallDt);
-        System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + person);
+        System.out.println("Timestamp consumeMessageAndProduceResponse()" + timestamp);
+        System.out.println("TestMqController consumeMessageAndProduceResponse() " + person);
 
         PersonResponseDto personResponseDto = PersonResponseDto.builder()
                 .activityId(activityId)
