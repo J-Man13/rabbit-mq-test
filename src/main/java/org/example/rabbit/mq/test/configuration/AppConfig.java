@@ -33,16 +33,16 @@ public class AppConfig {
                                                                   final @Value("${spring.rabbitmq.port}") int port,
                                                                   final @Value("${spring.rabbitmq.username}") String username,
                                                                   final @Value("${spring.rabbitmq.password}") String password) throws IOException, TimeoutException {
-        ConnectionFactory rabbitConnectionFactory = new ConnectionFactory();
-        rabbitConnectionFactory.setHost(host);
-        rabbitConnectionFactory.setPort(port);
-        rabbitConnectionFactory.setUsername(username);
-        rabbitConnectionFactory.setPassword(password);
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost(host);
+        connectionFactory.setPort(port);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
 
         for (int i = 0; i < 2 ; i++)
-            rabbitConnectionFactory.newConnection();
+            connectionFactory.newConnection();
 
-        PooledChannelConnectionFactory pcf = new PooledChannelConnectionFactory(rabbitConnectionFactory);
+        PooledChannelConnectionFactory pcf = new PooledChannelConnectionFactory(connectionFactory);
         pcf.setPoolConfigurer((pool, tx) -> {
             for (int i = 0; i < 3 ; i++)
                 poolAddObjectRuntime(pool);
@@ -52,9 +52,9 @@ public class AppConfig {
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(final @Qualifier("clientConnectionFactory") PooledChannelConnectionFactory connectionFactory,
+    public RabbitTemplate rabbitTemplate(final @Qualifier("clientConnectionFactory") PooledChannelConnectionFactory pooledChannelConnectionFactory,
                                          final MessageConverter messageConverter ) {
-        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(pooledChannelConnectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
     }
@@ -64,16 +64,16 @@ public class AppConfig {
                                                                   final @Value("${spring.rabbitmq.port}") int port,
                                                                   final @Value("${spring.rabbitmq.username}") String username,
                                                                   final @Value("${spring.rabbitmq.password}") String password) throws IOException, TimeoutException {
-        ConnectionFactory rabbitConnectionFactory = new ConnectionFactory();
-        rabbitConnectionFactory.setHost(host);
-        rabbitConnectionFactory.setPort(port);
-        rabbitConnectionFactory.setUsername(username);
-        rabbitConnectionFactory.setPassword(password);
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost(host);
+        connectionFactory.setPort(port);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
 
         for (int i = 0; i < 2 ; i++)
-            rabbitConnectionFactory.newConnection();
+            connectionFactory.newConnection();
 
-        PooledChannelConnectionFactory pcf = new PooledChannelConnectionFactory(rabbitConnectionFactory);
+        PooledChannelConnectionFactory pcf = new PooledChannelConnectionFactory(connectionFactory);
         pcf.setPoolConfigurer((pool, tx) -> {
             for (int i = 0; i < 3 ; i++)
                 poolAddObjectRuntime(pool);
