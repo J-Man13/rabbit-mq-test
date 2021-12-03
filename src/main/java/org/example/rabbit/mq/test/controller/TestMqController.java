@@ -15,31 +15,27 @@ public class TestMqController {
 
     @RabbitListener(queues = "simple-test-queue")
     public void consumeMessageAndForget(final Person person,
-                                        @Header(AmqpHeaders.MESSAGE_ID) String activityId,
-                                        @Header("pdrCallDt") String pdrCallDtString,
-                                        @Header(AmqpHeaders.TIMESTAMP) String timestamp){
+                                        final @Header(AmqpHeaders.MESSAGE_ID) String activityId,
+                                        final @Header("pdrCallDt") String pdrCallDtString){
         LocalDateTime pdrCallDt = LocalDateTime.parse(
                 pdrCallDtString,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
         System.out.println("TestMqController consumeMessageAndProduceIntoAnotherQueue() " + activityId+" "+
                 "Producer call date time "+pdrCallDt);
-        System.out.println("Timestamp " + timestamp);
         System.out.println("TestMqController consumeMessageAndForget()" + person);
     }
 
     @RabbitListener(queues = "request-response-queue")
     public PersonResponseDto consumeMessageAndProduceResponse(final Person person,
-                                                              @Header(AmqpHeaders.MESSAGE_ID) String activityId,
-                                                              @Header("pdrCallDt") String pdrCallDtString,
-                                                              @Header(AmqpHeaders.TIMESTAMP) String timestamp){
+                                                              final @Header(AmqpHeaders.MESSAGE_ID) String activityId,
+                                                              final @Header("pdrCallDt") String pdrCallDtString){
         LocalDateTime pdrCallDt = LocalDateTime.parse(
                 pdrCallDtString,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
         );
         System.out.println("TestMqController consumeMessageAndProduceResponse() " + activityId+" "+
                 "Producer call date time "+pdrCallDt);
-        System.out.println("Timestamp consumeMessageAndProduceResponse()" + timestamp);
         System.out.println("TestMqController consumeMessageAndProduceResponse() " + person);
 
         PersonResponseDto personResponseDto = PersonResponseDto.builder()
