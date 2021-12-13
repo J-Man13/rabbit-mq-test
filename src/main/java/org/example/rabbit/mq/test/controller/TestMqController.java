@@ -2,6 +2,7 @@ package org.example.rabbit.mq.test.controller;
 
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,13 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class TestMqController {
 
-    @RabbitListener(queues = "simple-test-queue")
+    private RabbitTemplate rabbitTemplate;
+
+    public TestMqController(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    @RabbitListener(queues = "simple-test-queue",containerFactory = "serverConsumerMessageListenerContainer")
     public void consumeMessageAndForget(final Person person,
                                         final @Header(AmqpHeaders.MESSAGE_ID) String activityId,
                                         final @Header("pdrCallDt") String pdrCallDtString){
@@ -26,7 +33,7 @@ public class TestMqController {
         System.out.println("TestMqController consumeMessageAndForget()" + person);
     }
 
-    @RabbitListener(queues = "request-response-queue")
+    @RabbitListener(queues = "request-response-queue", containerFactory = "serverConsumerMessageListenerContainer")
     public PersonResponseDto consumeMessageAndProduceResponse(final Person person,
                                                               final @Header(AmqpHeaders.MESSAGE_ID) String activityId,
                                                               final @Header("pdrCallDt") String pdrCallDtString){

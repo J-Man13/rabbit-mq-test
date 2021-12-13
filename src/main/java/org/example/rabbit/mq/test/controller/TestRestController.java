@@ -1,6 +1,7 @@
 package org.example.rabbit.mq.test.controller;
 
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class TestRestController {
                 message -> {
                     MessageProperties messageProperties = message.getMessageProperties();
                     messageProperties.setMessageId(activityId);
+                    messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
                     messageProperties.setHeader(
                             "pdrCallDt",
                             LocalDateTime
@@ -67,10 +69,12 @@ public class TestRestController {
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"))
                     );
                     messageProperties.setMessageId(activityId);
+                    messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
                     return message;
                 },
                 new ParameterizedTypeReference<>() {}
         );
+
         System.out.println("TestRestController requestResponseTestQueue() personResponseDto "+personResponseDto);
         return personResponseDto;
     }

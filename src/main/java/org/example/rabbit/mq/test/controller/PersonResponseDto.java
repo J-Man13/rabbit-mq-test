@@ -24,6 +24,9 @@ public class PersonResponseDto {
     private String name;
     @JsonProperty("age")
     private Integer age;
+    @JsonProperty("queueName")
+    private String queueName;
+
     @JsonProperty("localDateTime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
